@@ -103,7 +103,9 @@ const heroBlock = /* groq */ `
     ...,
     ${imageFragment},
     ${buttonsFragment},
-    ${richTextFragment}
+    ${richTextFragment},
+    showNewsletterSignup,
+    newsletterSection
   }
 `;
 

@@ -335,6 +335,14 @@ export type Hero = {
       _key: string;
     } & Button
   >;
+  showNewsletterSignup?: boolean;
+  newsletterSection?: {
+    heading?: string;
+    subheading?: string;
+    buttonText?: string;
+    placeholder?: string;
+    successMessage?: string;
+  };
 };
 
 export type PageBuilder = Array<
@@ -1198,6 +1206,14 @@ export type QueryHomePageDataResult = {
           openInNewTab: boolean | null;
           href: string | null;
         }> | null;
+        showNewsletterSignup?: boolean;
+        newsletterSection?: {
+          heading?: string;
+          subheading?: string;
+          buttonText?: string;
+          placeholder?: string;
+          successMessage?: string;
+        };
       }
     | {
         _key: string;
@@ -1615,6 +1631,14 @@ export type QuerySlugPageDataResult = {
           openInNewTab: boolean | null;
           href: string | null;
         }> | null;
+        showNewsletterSignup?: boolean;
+        newsletterSection?: {
+          heading?: string;
+          subheading?: string;
+          buttonText?: string;
+          placeholder?: string;
+          successMessage?: string;
+        };
       }
     | {
         _key: string;
@@ -2027,6 +2051,14 @@ export type QueryBlogIndexPageDataResult = {
           openInNewTab: boolean | null;
           href: string | null;
         }> | null;
+        showNewsletterSignup?: boolean;
+        newsletterSection?: {
+          heading?: string;
+          subheading?: string;
+          buttonText?: string;
+          placeholder?: string;
+          successMessage?: string;
+        };
       }
     | {
         _key: string;

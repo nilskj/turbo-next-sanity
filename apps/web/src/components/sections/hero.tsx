@@ -5,6 +5,7 @@ import type { PagebuilderType } from "@/types";
 import { RichText } from "../richtext";
 import { SanityButtons } from "../sanity-buttons";
 import { SanityImage } from "../sanity-image";
+import { NewsletterSignup } from "../newsletter-signup";
 
 type HeroBlockProps = PagebuilderType<"hero">;
 
@@ -14,6 +15,8 @@ export function HeroBlock({
   badge,
   image,
   richText,
+  showNewsletterSignup,
+  newsletterSection,
 }: HeroBlockProps) {
   return (
     <section id="hero" className="mt-4 md:my-16">
@@ -31,11 +34,30 @@ export function HeroBlock({
               />
             </div>
 
-            <SanityButtons
-              buttons={buttons}
-              buttonClassName="w-full sm:w-auto"
-              className="w-full sm:w-fit grid gap-2 sm:grid-flow-col lg:justify-start mb-8"
-            />
+            <div className="w-full">
+              {showNewsletterSignup && newsletterSection ? (
+                <NewsletterSignup
+                  heading={
+                    newsletterSection.heading || "Subscribe to our newsletter"
+                  }
+                  subheading={newsletterSection.subheading}
+                  buttonText={newsletterSection.buttonText || "Subscribe"}
+                  placeholder={
+                    newsletterSection.placeholder || "Your email address"
+                  }
+                  successMessage={
+                    newsletterSection.successMessage ||
+                    "Thanks for subscribing!"
+                  }
+                />
+              ) : buttons && buttons.length > 0 ? (
+                <SanityButtons
+                  buttons={buttons}
+                  buttonClassName="w-full sm:w-auto"
+                  className="w-full sm:w-fit grid gap-2 sm:grid-flow-col lg:justify-start"
+                />
+              ) : null}
+            </div>
           </div>
 
           {image && (

@@ -1,0 +1,248 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Turborepo + Next.js + Sanity Studio Project Guide
+
+This document provides a quick reference for working with this monorepo, focusing on common tasks and code locations.
+
+## Repository Structure 
+
+/
+├── apps/
+│ ├── web/ # Next.js frontend application
+│ │ ├── app/ # Next.js app router components
+│ │ ├── components/ # Reusable frontend components
+│ │ ├── lib/sanity.ts # Sanity client configuration
+│ │ └── sanity/schema.ts # Frontend schema definition
+│ │
+│ └── studio/ # Sanity Studio (CMS)
+│ ├── schemas/ # Content type definitions
+│ ├── structure/ # Custom studio structure
+│ └── .env # Studio environment variables
+│
+├── packages/
+│ ├── ui/ # Shared UI components
+│ └── config/ # Shared configuration
+│
+├── turbo.json # Turborepo pipeline configuration
+└── package.json # Root package.json
+
+## Common Tasks
+
+### 1. Adding a New Content Type to Sanity
+
+1. Create a new schema file in `apps/studio/schemas/`
+   For example, `apps/studio/schemas/author.ts`:
+
+```typescript
+export default {
+  name: 'author',
+  title: 'Author',
+  type: 'document',
+  fields: [
+    {
+      name: 'name',
+      title: 'Name',
+      type: 'string',
+      validation: Rule => Rule.required()
+    },
+    {
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      options: {
+        source: 'name',
+        maxLength: 96
+      }
+    },
+    {
+      name: 'bio',
+      title: 'Bio',
+      type: 'array',
+      of: [{type: 'block'}]
+    },
+    {
+      name: 'image',
+      title: 'Image',
+      type: 'image',
+      options: {
+        hotspot: true
+      }
+    }
+  ]
+}
+```
+
+2. Register the schema in `apps/studio/schemas/index.ts`:
+
+```typescript
+import author from './author'
+// other imports
+
+export const schemaTypes = [
+  author,
+  // other schema types
+]
+```
+
+### 2. Adding a Field to an Existing Content Type
+
+1. Locate the schema file in `apps/studio/schemas/`
+2. Add a new field to the `fields` array:
+
+```typescript
+// Example: Adding a "featured" field to a "post" schema
+export default {
+  name: 'post',
+  title: 'Post',
+  type: 'document',
+  fields: [
+    // existing fields...
+    {
+      name: 'featured',
+      title: 'Featured Post',
+      type: 'boolean',
+      description: 'Toggle to mark this post as featured',
+      initialValue: false
+    }
+  ]
+}
+```
+
+3. **IMPORTANT**: After adding new fields to Sanity schema, regenerate the TypeScript types:
+
+```bash
+cd apps/studio
+npm run type
+```
+
+This will update the type definitions in `apps/web/src/lib/sanity/sanity.types.ts`, making the new fields available in your TypeScript code.
+
+### 3. Querying Content in Next.js
+
+1. Define your GROQ query in your component:
+
+```typescript
+// apps/web/app/posts/page.tsx
+import { client } from '@/lib/sanity'
+
+async function getPosts() {
+  const query = `*[_type == "post" && defined(slug.current)] | order(publishedAt desc) {
+    _id,
+    title,
+    "slug": slug.current,
+    publishedAt,
+    excerpt,
+    featured,
+    "author": author->{name, "image": image.asset->url},
+    "mainImage": mainImage.asset->url
+  }`
+  
+  return await client.fetch(query)
+}
+
+export default async function Posts() {
+  const posts = await getPosts()
+  // Render your posts...
+}
+```
+
+### 4. Installing New Packages
+
+For app-specific packages:
+```bash
+cd apps/web
+npm install package-name
+# or
+cd apps/studio
+npm install package-name
+```
+
+For shared packages (root level):
+```bash
+npm install -w package-name
+```
+
+### 5. Setting Up Preview Mode
+
+1. Configure `SANITY_STUDIO_PRESENTATION_URL` in `apps/studio/.env` to point to your Next.js app
+2. Set up preview routes in Next.js app
+3. Configure preview in Sanity Studio structure
+
+### 6. Deployment Configuration
+
+Web app (Next.js):
+- Configure build settings in `apps/web/next.config.js`
+- Environment variables should be set in your hosting platform (Vercel, etc.)
+
+Sanity Studio:
+- Deploy using `sanity deploy` from the `apps/studio` directory
+- Make sure environment variables are properly set
+
+### 7. Running Development Servers
+
+Start all workspaces:
+```bash
+npm run dev
+```
+
+Start specific workspace:
+```bash
+npm run dev --filter=web
+# or
+npm run dev --filter=studio
+```
+
+## Field Types Reference
+
+Common Sanity field types:
+- `string`: Simple text
+- `text`: Multiline text
+- `number`: Numeric value
+- `boolean`: True/false
+- `datetime`: Date and time
+- `image`: Image with asset reference
+- `file`: File with asset reference
+- `slug`: URL-friendly identifier
+- `reference`: Relationship to another document
+- `array`: List of items (can contain blocks for rich text)
+- `object`: Nested object
+
+Example complex field (reference array):
+```typescript
+{
+  name: 'categories',
+  title: 'Categories',
+  type: 'array',
+  of: [{type: 'reference', to: {type: 'category'}}]
+}
+```
+
+Example rich text field:
+```typescript
+{
+  name: 'body',
+  title: 'Body',
+  type: 'array',
+  of: [
+    {type: 'block'},
+    {
+      type: 'image',
+      fields: [
+        {
+          name: 'caption',
+          type: 'string',
+          title: 'Caption',
+        },
+        {
+          name: 'alt',
+          type: 'string',
+          title: 'Alternative Text',
+        }
+      ]
+    }
+  ]
+}
+```
