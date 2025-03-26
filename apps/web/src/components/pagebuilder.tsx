@@ -12,7 +12,9 @@ import { FaqAccordion } from "./sections/faq-accordion";
 import { FeatureCardsWithIcon } from "./sections/feature-cards-with-icon";
 import { HeroBlock } from "./sections/hero";
 import { ImageLinkCards } from "./sections/image-link-cards";
+import { LinkTreeSection } from "./sections/link-tree";
 import { SubscribeNewsletter } from "./sections/subscribe-newsletter";
+import { FeaturedBooks } from "./sections/featured-books";
 
 type PageBlock = NonNullable<
   NonNullable<QueryHomePageDataResult>["pageBuilder"]
@@ -37,6 +39,8 @@ const BLOCK_COMPONENTS = {
   featureCardsIcon: FeatureCardsWithIcon,
   subscribeNewsletter: SubscribeNewsletter,
   imageLinkCards: ImageLinkCards,
+  linkTree: LinkTreeSection,
+  featuredBooks: FeaturedBooks,
 } as const;
 
 type BlockType = keyof typeof BLOCK_COMPONENTS;
@@ -59,7 +63,7 @@ export function PageBuilder({
 
   return (
     <main
-      className="flex flex-col gap-16 my-16 max-w-7xl mx-auto"
+      className="flex flex-col dark:bg-zinc-900"
       data-sanity={createDataAttribute({
         id: id,
         baseUrl: studioUrl,
@@ -78,16 +82,20 @@ export function PageBuilder({
           return (
             <div
               key={`${block._type}-${block._key}`}
-              className="flex items-center justify-center p-8 text-center text-muted-foreground bg-muted rounded-lg"
+              className="flex items-center justify-center p-8 text-center text-muted-foreground bg-muted dark:bg-zinc-800 dark:text-zinc-400 rounded-lg max-w-7xl mx-auto"
             >
               Component not found for block type: <code>{block._type}</code>
             </div>
           );
         }
 
+        // Check if it's a hero block - no max-width if so
+        const isHeroBlock = block._type === "hero";
+
         return (
           <div
             key={`${block._type}-${block._key}`}
+            className={`w-full ${!isHeroBlock ? "max-w-7xl mx-auto" : ""}`}
             data-sanity={createDataAttribute({
               id: id,
               baseUrl: studioUrl,

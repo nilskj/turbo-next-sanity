@@ -24,7 +24,6 @@ import {
 import { Sheet, SheetTrigger } from "@workspace/ui/components/sheet";
 import { cn } from "@workspace/ui/lib/utils";
 import { Menu } from "lucide-react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -33,9 +32,10 @@ import { useIsMobile } from "@/hooks/use-is-mobile";
 import type { QueryNavbarDataResult } from "@/lib/sanity/sanity.types";
 
 import { Logo } from "./logo";
-import { ModeToggle } from "./mode-toggle";
 import { SanityButtons } from "./sanity-buttons";
 import { SanityIcon } from "./sanity-icon";
+import { ModeToggle } from "./mode-toggle";
+
 interface MenuItem {
   title: string;
   description: string;
@@ -140,10 +140,7 @@ function MobileNavbar({ navbarData }: { navbarData: QueryNavbarDataResult }) {
                   key={`column-link-${item.name}-${item._key}`}
                   href={item.href ?? ""}
                   onClick={() => setIsOpen(false)}
-                  className={cn(
-                    buttonVariants({ variant: "ghost" }),
-                    "justify-start",
-                  )}
+                  className="text-sm uppercase tracking-wider font-medium text-[#09090B]"
                 >
                   {item.name}
                 </Link>
@@ -166,41 +163,20 @@ function MobileNavbar({ navbarData }: { navbarData: QueryNavbarDataResult }) {
         </div>
 
         <div className="border-t pt-4">
-          <SanityButtons
-            buttons={buttons ?? []}
-            buttonClassName="w-full"
-            className="flex mt-2 flex-col gap-3"
-          />
+          {buttons && buttons.length > 0 && (
+            <Button className="w-full bg-[#18181B] text-white hover:bg-black rounded-full px-5 py-2 h-9 text-sm font-medium mt-4">
+              Subscribe
+            </Button>
+          )}
+        </div>
+        <div className="mt-6 flex justify-between items-center">
+          <span className="text-sm font-medium dark:text-zinc-300">
+            Toggle theme
+          </span>
+          <ModeToggle />
         </div>
       </SheetContent>
     </Sheet>
-  );
-}
-
-function NavbarColumnLink({
-  column,
-}: {
-  column: Extract<
-    NonNullable<NonNullable<QueryNavbarDataResult>["columns"]>[number],
-    { type: "link" }
-  >;
-}) {
-  return (
-    <Link
-      aria-label={`Link to ${column.name ?? column.href}`}
-      href={column.href ?? ""}
-      legacyBehavior
-      passHref
-    >
-      <NavigationMenuLink
-        className={cn(
-          navigationMenuTriggerStyle(),
-          "text-muted-foreground dark:text-neutral-300",
-        )}
-      >
-        {column.name}
-      </NavigationMenuLink>
-    </Link>
   );
 }
 
@@ -259,40 +235,62 @@ export function DesktopNavbar({
   navbarData: QueryNavbarDataResult;
 }) {
   const { columns, buttons } = navbarData ?? {};
+  const pathname = usePathname();
 
   return (
-    <div className="grid grid-cols-[1fr_auto] items-center gap-8">
-      <NavigationMenu className="">
-        {columns?.map((column) =>
-          column.type === "column" ? (
-            <NavbarColumn key={`nav-${column._key}`} column={column} />
-          ) : (
-            <NavbarColumnLink key={`nav-${column._key}`} column={column} />
-          ),
-        )}
+    <div className="flex items-center gap-8">
+      <NavigationMenu>
+        <NavigationMenuList className="flex gap-8">
+          {columns?.map((column) => {
+            if (column.type === "link") {
+              const isActive = pathname === (column.href ?? "/");
+              return (
+                <Link
+                  key={`column-link-${column.name}-${column._key}`}
+                  href={column.href ?? "/"}
+                  className={`text-sm tracking-wider uppercase transition-all ${
+                    isActive
+                      ? "font-semibold text-zinc-900 dark:text-zinc-100"
+                      : "font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100"
+                  }`}
+                >
+                  {column.name}
+                </Link>
+              );
+            }
+            return <NavbarColumn key={column._key} column={column} />;
+          })}
+        </NavigationMenuList>
       </NavigationMenu>
 
-      <div className="justify-self-end flex items-center gap-4">
+      <div className="flex items-center gap-3">
+        {buttons && buttons.length > 0 && (
+          <Button className="bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-black dark:hover:bg-white rounded-full px-5 py-2 h-9 text-sm font-medium">
+            Subscribe
+          </Button>
+        )}
         <ModeToggle />
-        <SanityButtons
-          buttons={buttons ?? []}
-          className="flex items-center gap-4"
-          buttonClassName="rounded-[10px]"
-        />
       </div>
     </div>
   );
 }
 
-const ClientSideNavbar = ({
+export function NavbarClient({
   navbarData,
 }: {
   navbarData: QueryNavbarDataResult;
-}) => {
+}) {
   const isMobile = useIsMobile();
+  const [mounted, setMounted] = useState(false);
 
-  if (isMobile === undefined) {
-    return null; // Return null on initial render to avoid hydration mismatch
+  // After mounting, we can safely use isMobile
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Only show content after first mount to avoid hydration mismatch
+  if (!mounted) {
+    return <NavbarSkeletonResponsive />;
   }
 
   return isMobile ? (
@@ -300,13 +298,13 @@ const ClientSideNavbar = ({
   ) : (
     <DesktopNavbar navbarData={navbarData} />
   );
-};
+}
 
 function SkeletonMobileNavbar() {
   return (
     <div className="md:hidden">
       <div className="flex justify-end">
-        <div className="h-12 w-12 rounded-md bg-muted animate-pulse" />
+        <div className="h-10 w-10 rounded-md bg-muted animate-pulse" />
       </div>
     </div>
   );
@@ -314,25 +312,18 @@ function SkeletonMobileNavbar() {
 
 function SkeletonDesktopNavbar() {
   return (
-    <div className="hidden md:grid grid-cols-[1fr_auto] items-center gap-8 w-full">
-      <div className="justify-center flex max-w-max flex-1 items-center gap-2">
-        {Array.from({ length: 2 }).map((_, index) => (
+    <div className="hidden md:flex items-center gap-8">
+      <div className="flex items-center gap-8">
+        {Array.from({ length: 4 }).map((_, index) => (
           <div
-            key={`nav-item-skeleton-${index.toString()}`}
-            className="h-12 w-32 rounded bg-muted animate-pulse"
+            key={`nav-item-skeleton-${index}`}
+            className="h-4 w-20 rounded bg-muted animate-pulse"
           />
         ))}
       </div>
 
-      <div className="justify-self-end">
-        <div className="flex items-center gap-4">
-          {Array.from({ length: 2 }).map((_, index) => (
-            <div
-              key={`nav-button-skeleton-${index.toString()}`}
-              className="h-12 w-32 rounded-[10px] bg-muted animate-pulse"
-            />
-          ))}
-        </div>
+      <div>
+        <div className="h-9 w-28 rounded-full bg-muted animate-pulse" />
       </div>
     </div>
   );
@@ -346,9 +337,3 @@ export function NavbarSkeletonResponsive() {
     </>
   );
 }
-
-// Dynamically import the navbar with no SSR to avoid hydration issues
-export const NavbarClient = dynamic(() => Promise.resolve(ClientSideNavbar), {
-  ssr: false,
-  loading: () => <NavbarSkeletonResponsive />,
-});

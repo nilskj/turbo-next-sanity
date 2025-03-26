@@ -15,51 +15,47 @@ interface MediaQueryResult {
 }
 
 export function useIsMobile(mobileScreenSize = 768) {
-  const [isMobile, setIsMobile] = React.useState(() => {
-    if (
-      typeof window === "undefined" ||
-      typeof window.matchMedia !== "function"
-    ) {
-      return undefined;
-    }
-    return window.matchMedia(`(max-width: ${mobileScreenSize}px)`).matches;
-  });
-
-  const checkIsMobile = React.useCallback((event: MediaQueryListEvent) => {
-    setIsMobile(event.matches);
-  }, []);
+  // Start with null for SSR to avoid hydration mismatch
+  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(
+    undefined,
+  );
 
   React.useEffect(() => {
+    // Only run on client side
     if (
-      typeof window === "undefined" ||
-      typeof window.matchMedia !== "function"
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function"
     ) {
-      return;
-    }
+      // Set the initial value
+      setIsMobile(
+        window.matchMedia(`(max-width: ${mobileScreenSize}px)`).matches,
+      );
 
-    const mediaListener: MediaQueryResult = window.matchMedia(
-      `(max-width: ${mobileScreenSize}px)`,
-    );
+      const mediaListener: MediaQueryResult = window.matchMedia(
+        `(max-width: ${mobileScreenSize}px)`,
+      );
 
-    const attachListener = () => {
+      const checkIsMobile = (event: MediaQueryListEvent) => {
+        setIsMobile(event.matches);
+      };
+
+      // Add the appropriate event listener
       if (mediaListener.addEventListener) {
         mediaListener.addEventListener("change", checkIsMobile);
       } else if (mediaListener.addListener) {
         mediaListener.addListener(checkIsMobile);
       }
-    };
 
-    const removeListener = () => {
-      if (mediaListener.removeEventListener) {
-        mediaListener.removeEventListener("change", checkIsMobile);
-      } else if (mediaListener.removeListener) {
-        mediaListener.removeListener(checkIsMobile);
-      }
-    };
-
-    attachListener();
-    return removeListener;
-  }, [mobileScreenSize, checkIsMobile]);
+      // Cleanup
+      return () => {
+        if (mediaListener.removeEventListener) {
+          mediaListener.removeEventListener("change", checkIsMobile);
+        } else if (mediaListener.removeListener) {
+          mediaListener.removeListener(checkIsMobile);
+        }
+      };
+    }
+  }, [mobileScreenSize]);
 
   return isMobile;
 }

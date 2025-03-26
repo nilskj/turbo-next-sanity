@@ -3,6 +3,7 @@ import Link from "next/link";
 import { sanityFetch } from "@/lib/sanity/live";
 import { queryFooterData } from "@/lib/sanity/query";
 import type { QueryFooterDataResult } from "@/lib/sanity/sanity.types";
+import { cn } from "@workspace/ui/lib/utils";
 
 import { Logo } from "./logo";
 import {
@@ -18,7 +19,7 @@ interface SocialLinksProps {
 }
 
 interface FooterProps {
-  data: NonNullable<QueryFooterDataResult>;
+  data?: QueryFooterDataResult;
 }
 
 async function fetchFooterData() {
@@ -29,9 +30,10 @@ async function fetchFooterData() {
 }
 
 export async function FooterServer() {
-  const footerData = await fetchFooterData();
-  if (!footerData?.data) return <FooterSkeleton />;
-  return <Footer data={footerData.data} />;
+  const footer = await sanityFetch({
+    query: queryFooterData,
+  });
+  return <Footer data={footer.data} />;
 }
 
 function SocialLinks({ data }: SocialLinksProps) {
@@ -79,127 +81,77 @@ function SocialLinks({ data }: SocialLinksProps) {
 }
 
 export function FooterSkeleton() {
-  return (
-    <section className="mt-16 pb-8">
-      <div className="container mx-auto px-4 md:px-6">
-        <footer className="h-[500px] lg:h-auto">
-          <div className="flex flex-col items-center justify-between gap-10 text-center lg:flex-row lg:text-left">
-            <div className="flex w-full max-w-96 shrink flex-col items-center justify-between gap-6 lg:items-start">
-              <div>
-                <span className="flex items-center justify-center gap-4 lg:justify-start">
-                  <div className="h-[40px] w-[80px] bg-muted rounded animate-pulse" />
-                </span>
-                <div className="mt-6 h-16 w-full bg-muted rounded animate-pulse" />
-              </div>
-              <div className="flex items-center space-x-6">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <div
-                    key={i}
-                    className="h-6 w-6 bg-muted rounded animate-pulse"
-                  />
-                ))}
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-6 lg:gap-20">
-              {[1, 2, 3].map((col) => (
-                <div key={col}>
-                  <div className="mb-6 h-6 w-24 bg-muted rounded animate-pulse" />
-                  <div className="space-y-4">
-                    {[1, 2, 3, 4].map((item) => (
-                      <div
-                        key={item}
-                        className="h-4 w-full bg-muted rounded animate-pulse"
-                      />
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="mt-20 flex flex-col justify-between gap-4 border-t pt-8 text-center lg:flex-row lg:items-center lg:text-left">
-            <div className="h-4 w-48 bg-muted rounded animate-pulse" />
-            <div className="flex justify-center gap-4 lg:justify-start">
-              <div className="h-4 w-32 bg-muted rounded animate-pulse" />
-              <div className="h-4 w-24 bg-muted rounded animate-pulse" />
-            </div>
-          </div>
-        </footer>
-      </div>
-    </section>
-  );
+  return <div className="h-20 bg-zinc-50 dark:bg-zinc-900" />;
 }
 
-function Footer({ data }: FooterProps) {
-  const { subtitle, columns, socialLinks, logo, siteTitle } = data;
+export function Footer({ data }: FooterProps) {
   const year = new Date().getFullYear();
+  const siteName = "Author Website";
 
   return (
-    <section className="mt-20 pb-8">
-      <div className="container mx-auto">
-        <footer className="h-[500px] lg:h-auto">
-          <div className="flex flex-col items-center justify-between gap-10 text-center lg:flex-row lg:text-left mx-auto max-w-7xl px-4 md:px-6">
-            <div className="flex w-full max-w-96 shrink flex-col items-center justify-between gap-6 md:gap-8 lg:items-start">
-              <div>
-                <span className="flex items-center justify-center gap-4 lg:justify-start">
-                  <Logo src={logo} alt={siteTitle} priority />
-                </span>
-                {subtitle && (
-                  <p className="mt-6 text-sm text-muted-foreground dark:text-zinc-400">
-                    {subtitle}
-                  </p>
-                )}
-              </div>
-              {socialLinks && <SocialLinks data={socialLinks} />}
-            </div>
-            {Array.isArray(columns) && columns?.length > 0 && (
-              <div className="grid grid-cols-3 gap-6 lg:gap-28 lg:mr-20">
-                {columns.map((column, index) => (
-                  <div key={`column-${column?._key}-${index}`}>
-                    <h3 className="mb-6 font-semibold">{column?.title}</h3>
-                    {column?.links && column?.links?.length > 0 && (
-                      <ul className="space-y-4 text-sm text-muted-foreground dark:text-zinc-400">
-                        {column?.links?.map((link, index) => (
-                          <li
-                            key={`${link?._key}-${index}-column-${column?._key}`}
-                            className="font-medium hover:text-primary"
-                          >
-                            <Link
-                              href={link.href ?? "#"}
-                              target={link.openInNewTab ? "_blank" : undefined}
-                              rel={
-                                link.openInNewTab
-                                  ? "noopener noreferrer"
-                                  : undefined
-                              }
-                            >
-                              {link.name}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+    <footer className="mt-auto bg-zinc-50 dark:bg-zinc-900 py-8 md:py-12">
+      <div className="container mx-auto px-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <Logo alt={siteName} />
+            <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
+              &copy; {year} {siteName}. All rights reserved.
+            </p>
           </div>
-          <div className="mt-20 border-t pt-8">
-            <div className="flex flex-col justify-between gap-4  text-center text-sm font-normal text-muted-foreground lg:flex-row lg:items-center lg:text-left mx-auto max-w-7xl px-4 md:px-6">
-              <p>
-                © {year} {siteTitle}. All rights reserved.
-              </p>
-              <ul className="flex justify-center gap-4 lg:justify-start">
-                <li className="hover:text-primary">
-                  <Link href="/terms">Terms and Conditions</Link>
-                </li>
-                <li className="hover:text-primary">
-                  <Link href="/privacy">Privacy Policy</Link>
-                </li>
-              </ul>
-            </div>
+          <div className="flex gap-6">
+            <a
+              href="https://twitter.com/"
+              className={cn(
+                "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors",
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span className="sr-only">Twitter</span>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="size-5"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
+              </svg>
+            </a>
+            <a
+              href="https://instagram.com/"
+              className={cn(
+                "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors",
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span className="sr-only">Instagram</span>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="size-5"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+              </svg>
+            </a>
           </div>
-        </footer>
+        </div>
       </div>
-    </section>
+    </footer>
   );
 }

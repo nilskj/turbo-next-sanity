@@ -2,6 +2,7 @@ import "@workspace/ui/globals.css";
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Playfair_Display } from "next/font/google";
 import { draftMode } from "next/headers";
 import { VisualEditing } from "next-sanity";
 import { Suspense } from "react";
@@ -28,6 +29,12 @@ const fontMono = Geist_Mono({
   display: "optional",
 });
 
+const playfairDisplay = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+  display: "swap",
+});
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -36,9 +43,10 @@ export default async function RootLayout({
   preconnect("https://cdn.sanity.io");
   prefetchDNS("https://cdn.sanity.io");
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="dark:bg-zinc-900">
       <body
-        className={`${fontGeist.variable} ${fontMono.variable} font-geist antialiased`}
+        className={`${fontGeist.variable} ${fontMono.variable} ${playfairDisplay.variable} font-geist antialiased`}
+        suppressHydrationWarning
       >
         <Providers>
           <Suspense fallback={<NavbarSkeleton />}>
