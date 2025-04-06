@@ -148,6 +148,32 @@ const subscribeNewsletterBlock = /* groq */ `
   }
 `;
 
+const featuredBooksBlock = /* groq */ `
+  _type == "featuredBooks" => {
+    ...,
+    books[]{
+      ...,
+      ${imageFragment},
+      "detailsLink": {
+        "openInNewTab": detailsLink.openInNewTab,
+        "href": select(
+          detailsLink.type == "internal" => detailsLink.internal->slug.current,
+          detailsLink.type == "external" => detailsLink.external,
+          detailsLink.href
+        )
+      }
+    },
+    "viewAllLink": {
+      "openInNewTab": viewAllLink.openInNewTab,
+      "href": select(
+        viewAllLink.type == "internal" => viewAllLink.internal->slug.current,
+        viewAllLink.type == "external" => viewAllLink.external,
+        viewAllLink.href
+      )
+    }
+  }
+`;
+
 const pageBuilderFragment = /* groq */ `
   pageBuilder[]{
     ...,
@@ -156,7 +182,8 @@ const pageBuilderFragment = /* groq */ `
     ${heroBlock},
     ${faqAccordionBlock},
     ${subscribeNewsletterBlock},
-    ${imageLinkCardsBlock}
+    ${imageLinkCardsBlock},
+    ${featuredBooksBlock}
   }
 `;
 

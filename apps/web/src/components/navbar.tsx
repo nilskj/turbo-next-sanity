@@ -14,24 +14,24 @@ export function Navbar({ navbarData }: { navbarData: QueryNavbarDataResult }) {
   const { logo, siteTitle } = navbarData ?? {};
 
   return (
-    <section className="py-3 md:border-b">
-      <div className="container mx-auto px-4 md:px-6">
-        <nav className="grid grid-cols-[auto_1fr] items-center gap-4">
-          <Logo src={logo} alt={siteTitle} priority />
+    <header className="sticky top-0 z-50 bg-white/90 dark:bg-zinc-900/95 backdrop-blur-xl shadow-sm dark:shadow-zinc-800/10">
+      <div className="container mx-auto px-6 py-5">
+        <nav className="flex justify-between items-center">
+          <Logo alt={siteTitle} />
 
           <NavbarClient navbarData={navbarData} />
         </nav>
       </div>
-    </section>
+    </header>
   );
 }
 
 export function NavbarSkeleton() {
   return (
-    <header className="h-[75px] py-4 md:border-b">
-      <div className="container mx-auto px-4 md:px-6">
-        <nav className="grid grid-cols-[auto_1fr] items-center gap-4">
-          <div className="h-[40px] w-[170px] rounded animate-pulse bg-muted" />
+    <header className="sticky top-0 z-50 bg-white/90 dark:bg-zinc-900/95 backdrop-blur-xl shadow-sm dark:shadow-zinc-800/10">
+      <div className="container mx-auto px-6 py-5">
+        <nav className="flex justify-between items-center">
+          <div className="h-[32px] w-[120px] rounded animate-pulse bg-muted" />
           <NavbarSkeletonResponsive />
         </nav>
       </div>

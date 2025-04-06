@@ -15,6 +15,7 @@ const config = {
       fontFamily: {
         geist: ["var(--font-geist)", ...fontFamily.sans],
         mono: ["var(--font-mono)", ...fontFamily.mono],
+        serif: ["var(--font-playfair)", ...fontFamily.serif],
       },
       colors: {
         border: "hsl(var(--border))",

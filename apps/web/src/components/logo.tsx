@@ -15,6 +15,7 @@ interface LogoProps {
   width?: number;
   height?: number;
   priority?: boolean;
+  className?: string;
 }
 
 export function Logo({
@@ -24,33 +25,46 @@ export function Logo({
   width = 170,
   height = 40,
   priority = true,
+  className,
 }: LogoProps) {
+  // If we have an image from Sanity or a src URL, use the image
+  if (image || src) {
+    return (
+      <Link href="/" className={className}>
+        {image ? (
+          <SanityImage
+            asset={image}
+            alt={alt ?? "logo"}
+            width={width}
+            className="w-auto h-auto dark:invert"
+            height={height}
+            priority={priority}
+            loading="eager"
+            decoding="sync"
+            quality={100}
+          />
+        ) : (
+          <Image
+            src={src ?? LOGO_URL}
+            alt={alt ?? "logo"}
+            width={width}
+            className="w-auto h-auto dark:invert"
+            height={height}
+            loading="eager"
+            priority={priority}
+            decoding="sync"
+          />
+        )}
+      </Link>
+    );
+  }
+
+  // If no image, use a text logo with Playfair Display font
   return (
-    <Link href="/" className="">
-      {image ? (
-        <SanityImage
-          asset={image}
-          alt={alt ?? "logo"}
-          width={width}
-          className="w-[170px] h-[40px] dark:invert"
-          height={height}
-          priority={priority}
-          loading="eager"
-          decoding="sync"
-          quality={100}
-        />
-      ) : (
-        <Image
-          src={src ?? LOGO_URL}
-          alt={alt ?? "logo"}
-          width={width}
-          className="w-[170px] h-[40px] dark:invert"
-          height={height}
-          loading="eager"
-          priority={priority}
-          decoding="sync"
-        />
-      )}
+    <Link href="/" className={className}>
+      <span className="font-serif font-bold text-2xl text-zinc-900 dark:text-white">
+        {alt || "Author Name"}
+      </span>
     </Link>
   );
 }
