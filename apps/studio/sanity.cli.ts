@@ -11,4 +11,3 @@ export default defineCliConfig({
   studioHost: "author-name",
   autoUpdates: false,
 });
-
