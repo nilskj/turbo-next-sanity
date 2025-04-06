@@ -63,7 +63,7 @@ export function Logo({
   return (
     <Link href="/" className={className}>
       <span className="font-serif font-bold text-2xl text-zinc-900 dark:text-white">
-        {alt || "Roe Horvat"}
+        {alt || "Author Name"}
       </span>
     </Link>
   );

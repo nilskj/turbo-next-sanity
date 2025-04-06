@@ -8,6 +8,7 @@ export default defineCliConfig({
     projectId: projectId,
     dataset: dataset,
   },
-  studioHost: "roehorvat",
+  studioHost: "author-name",
   autoUpdates: false,
 });
+
