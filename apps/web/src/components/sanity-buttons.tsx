@@ -1,48 +1,18 @@
 import { Button } from "@workspace/ui/components/button";
+import { HeartIcon } from "@workspace/ui/components/icons/heart-icon";
 import { cn } from "@workspace/ui/lib/utils";
 import Link from "next/link";
 import type { ComponentProps } from "react";
+import type { Button as SanityButton } from "@/lib/sanity/sanity.types";
 
-import type { SanityButtonProps } from "@/types";
+type SanityButtonWithKey = SanityButton & { _key: string };
 
 type SanityButtonsProps = {
-  buttons: SanityButtonProps[] | null;
+  buttons: SanityButtonWithKey[] | null;
   className?: string;
   buttonClassName?: string;
   size?: "sm" | "lg" | "default" | "icon" | null | undefined;
 };
-
-function SanityButton({
-  text,
-  href,
-  variant = "default",
-  openInNewTab,
-  className,
-  ...props
-}: SanityButtonProps & ComponentProps<typeof Button>) {
-  if (!href) {
-    console.log("Link Broken", { text, href, variant, openInNewTab });
-    return <Button>Link Broken</Button>;
-  }
-
-  return (
-    <Button
-      variant={variant}
-      {...props}
-      asChild
-      className={cn("rounded-[10px]", className)}
-    >
-      <Link
-        href={href || "#"}
-        target={openInNewTab ? "_blank" : "_self"}
-        aria-label={`Navigate to ${text}`}
-        title={`Click to visit ${text}`}
-      >
-        {text}
-      </Link>
-    </Button>
-  );
-}
 
 export function SanityButtons({
   buttons,
@@ -55,12 +25,26 @@ export function SanityButtons({
   return (
     <div className={cn("flex flex-col sm:flex-row gap-4", className)}>
       {buttons.map((button) => (
-        <SanityButton
+        <Button
           key={`button-${button._key}`}
+          variant={button.variant || "default"}
           size={size}
-          {...button}
-          className={buttonClassName}
-        />
+          asChild
+          className={cn(
+            "bg-white/10 backdrop-blur-xl border border-white/30 text-white hover:bg-white/20 transition-colors rounded-full py-3 px-8 gap-2 font-medium text-sm",
+            buttonClassName,
+          )}
+        >
+          <Link
+            href={button.url?.external || "#"}
+            target={button.url?.openInNewTab ? "_blank" : "_self"}
+            rel={button.url?.openInNewTab ? "noopener noreferrer" : undefined}
+            className="flex items-center justify-center gap-2"
+          >
+            {button.text?.toLowerCase().includes("patreon") && <HeartIcon />}
+            <span className="font-medium">{button.text}</span>
+          </Link>
+        </Button>
       ))}
     </div>
   );
