@@ -1,9 +1,8 @@
 import { Button } from "@workspace/ui/components/button";
-import { HeartIcon } from "@workspace/ui/components/icons/heart-icon";
 import { cn } from "@workspace/ui/lib/utils";
 import Link from "next/link";
-import type { ComponentProps } from "react";
 import type { Button as SanityButton } from "@/lib/sanity/sanity.types";
+import { HeartIcon } from "lucide-react";
 
 type SanityButtonWithKey = SanityButton & { _key: string };
 

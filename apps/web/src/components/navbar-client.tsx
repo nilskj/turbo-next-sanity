@@ -11,10 +11,8 @@ import {
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
 } from "@workspace/ui/components/navigation-menu";
 import {
   SheetContent,
@@ -32,7 +30,6 @@ import { useIsMobile } from "@/hooks/use-is-mobile";
 import type { QueryNavbarDataResult } from "@/lib/sanity/sanity.types";
 
 import { Logo } from "./logo";
-import { SanityButtons } from "./sanity-buttons";
 import { SanityIcon } from "./sanity-icon";
 import { ModeToggle } from "./mode-toggle";
 
