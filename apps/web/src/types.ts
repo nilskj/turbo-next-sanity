@@ -31,3 +31,5 @@ export type SanityRichTextBlock = Extract<
   NonNullable<NonNullable<SanityRichTextProps>[number]>,
   { _type: "block" }
 >;
+
+export type Maybe<T> = T | null | undefined;

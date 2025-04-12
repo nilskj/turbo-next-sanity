@@ -29,7 +29,13 @@ export function CTABlock({ richText, title, eyebrow, buttons }: CTABlockProps) {
             </div>
             <div className="flex justify-center">
               <SanityButtons
-                buttons={buttons}
+                buttons={
+                  buttons?.map((button) => ({
+                    ...button,
+                    text: button.text ?? undefined,
+                    variant: button.variant ?? undefined,
+                  })) || []
+                }
                 buttonClassName="w-full sm:w-auto"
                 className="w-full sm:w-fit grid gap-2 sm:grid-flow-col lg:justify-start mb-8"
               />
