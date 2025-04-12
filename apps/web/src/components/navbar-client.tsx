@@ -11,17 +11,17 @@ import {
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
 } from "@workspace/ui/components/navigation-menu";
+
 import {
+  Sheet,
+  SheetTrigger,
   SheetContent,
   SheetHeader,
   SheetTitle,
 } from "@workspace/ui/components/sheet";
-import { Sheet, SheetTrigger } from "@workspace/ui/components/sheet";
 import { cn } from "@workspace/ui/lib/utils";
 import { Menu } from "lucide-react";
 import Link from "next/link";
@@ -32,7 +32,6 @@ import { useIsMobile } from "@/hooks/use-is-mobile";
 import type { QueryNavbarDataResult } from "@/lib/sanity/sanity.types";
 
 import { Logo } from "./logo";
-import { SanityButtons } from "./sanity-buttons";
 import { SanityIcon } from "./sanity-icon";
 import { ModeToggle } from "./mode-toggle";
 

@@ -26,6 +26,10 @@ export default async function Page() {
 
   const { _id, _type, pageBuilder } = homePageData ?? {};
 
+  if (!pageBuilder) {
+    return null;
+  }
+
   return (
     <>
       {/* Render all components using PageBuilder */}

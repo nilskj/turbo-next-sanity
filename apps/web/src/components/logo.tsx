@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import type { Maybe, SanityImageProps } from "@/types";
+import type { SanityImageProps, Maybe } from "@/types";
 
 import { SanityImage } from "./sanity-image";
 
